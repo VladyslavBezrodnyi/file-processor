@@ -8,6 +8,8 @@ namespace ImageProcessor.Domain.Entities
 
         public required string FileName { get; set; }
 
+        public required string ContentType { get; set; }
+
         public FileType FileType { get; set; }
 
         public ICollection<ProcessEvent> ProcessEvents { get; set; }

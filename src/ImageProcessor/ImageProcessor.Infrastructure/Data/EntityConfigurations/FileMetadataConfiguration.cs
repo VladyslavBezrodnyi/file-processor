@@ -30,6 +30,12 @@ namespace ImageProcessor.Infrastructure.Data.EntityConfigurations
                 .IsRequired();
 
             builder
+                .Property(x => x.ContentType)
+                .HasColumnName("content_type")
+                .HasColumnType("varchar(2048)")
+                .IsRequired();
+
+            builder
                 .Property(x => x.FileType)
                 .HasColumnName("file_type")
                 .HasColumnType("smallint")

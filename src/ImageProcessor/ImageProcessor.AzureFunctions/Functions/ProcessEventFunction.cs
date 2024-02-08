@@ -20,6 +20,7 @@ namespace ImageProcessor.AzureFunctions.Functions
             _logger.LogInformation("C# HTTP trigger function processed a request.");
             var eventId = Guid.Parse(req.Headers["EventId"].ToString());
             var result = await _processEventRepository.GetById(eventId);
+            result.FileMetadata.ProcessEvents = null;
             return new OkObjectResult(result);
         }
     }

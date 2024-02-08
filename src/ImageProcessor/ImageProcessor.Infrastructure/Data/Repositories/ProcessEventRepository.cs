@@ -11,7 +11,9 @@ namespace ImageProcessor.Infrastructure.Data.Repositories
 
         public async Task<ProcessEvent> GetById(Guid id)
         {
-            return await _context.ProcessEvents.FirstOrDefaultAsync(e => e.EventId == id);
+            return await _context.ProcessEvents
+                .Include(p => p.FileMetadata)
+                .FirstOrDefaultAsync(e => e.EventId == id);
         }
 
         public async Task<ProcessEvent> CreateAsync(ProcessEvent entity)

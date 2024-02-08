@@ -1,5 +1,6 @@
 using ImageProcessor.Domain.Entities;
 using ImageProcessor.Domain.Enums;
+using ImageProcessor.Domain.Extensions;
 using ImageProcessor.Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -39,14 +40,20 @@ namespace ImageProcessor.AzureFunctions.Functions
 
         private async Task<IActionResult> PostRequest(HttpRequest req)
         {
-            Stream stream = new MemoryStream();
             var file = req.Form.Files["File"];
-            stream = file.OpenReadStream();
+            Stream stream = file.OpenReadStream();
+
+            var fileType = file.FileName.GetFileTypeFromFileName();
+            if (fileType is null)
+            {
+                return new BadRequestObjectResult("Invalid file extension!");
+            }
 
             var metadata = new FileMetadata()
             {
                 FileName = file.FileName,
-                FileType = FileType.PNG
+                ContentType = file.ContentType,
+                FileType = fileType.Value
             };
 
             var createdMetadata = await _fileService.UploadFileAsync(metadata, stream);

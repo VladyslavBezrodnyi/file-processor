@@ -31,6 +31,11 @@ namespace ImageProcessor.Infrastructure.Data.Migrations
                         .HasColumnName("file_id")
                         .HasDefaultValueSql("uuid_generate_v4()");
 
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasColumnType("varchar(2048)")
+                        .HasColumnName("content_type");
+
                     b.Property<DateTime>("CreatedDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")

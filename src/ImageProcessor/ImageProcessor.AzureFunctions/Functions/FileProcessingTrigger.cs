@@ -18,7 +18,7 @@ namespace ImageProcessor.AzureFunctions.Functions
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequest req)
         {
             _logger.LogInformation("C# HTTP trigger function processed a request.");
-            var fileId = Guid.Parse(req.Headers["FileId"].ToString());
+            var fileId = Guid.Parse(req.Query["FileId"].ToString());
 
             var processEvent = await _fileService.TriggerProcessingAsync(fileId, ProcessType.OCR);
 

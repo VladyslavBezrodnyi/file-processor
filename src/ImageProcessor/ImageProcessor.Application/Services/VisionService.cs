@@ -1,18 +1,14 @@
 ﻿using ImageProcessor.Application.Options;
 using ImageProcessor.Domain.Entities;
+using ImageProcessor.Domain.Entities.Result;
+using ImageProcessor.Domain.Enums;
 using ImageProcessor.Domain.Interfaces.Repositories;
 using ImageProcessor.Domain.Interfaces.Services;
 using ImageProcessor.Infrastructure.Data.Interfaces;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.Extensions.Options;
-using System.Net;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
-using Microsoft.EntityFrameworkCore.Metadata;
-using ImageProcessor.Infrastructure.Data.Clients;
-using ImageProcessor.Domain.Enums;
-using System.IO;
-using System.Text;
+using Microsoft.Extensions.Options;
+using System.Text.Json;
 
 namespace ImageProcessor.Application.Services
 {
@@ -40,12 +36,13 @@ namespace ImageProcessor.Application.Services
         public async Task<ProcessEvent> ProcessImageAsync(ProcessEvent processEvent)
         {
             processEvent = await _processEventRepository.GetById(processEvent.EventId);
+            var metadata = processEvent.FileMetadata;
             processEvent.ProcessStatus = ProcessStatus.InProcess;
             processEvent = await _processEventRepository.UpdateAsync(processEvent);
 
             try
             {
-                var img = await _blobStorageClient.ReadFileAsync(processEvent.FileId);
+                var img = await _blobStorageClient.ReadFileAsync(processEvent.FileId, metadata.FileType);
 
                 if (img?.Value?.Content is null)
                 {
@@ -55,7 +52,8 @@ namespace ImageProcessor.Application.Services
                 }
 
                 processEvent.ProcessStatus = ProcessStatus.Success;
-                processEvent.Output = await RecognizeTextAsync(img.Value.Content.ToStream());
+                var result = await RecognizeTextAsync(img.Value.Content.ToStream());
+                processEvent.Output = JsonSerializer.Serialize(result);
                 processEvent = await _processEventRepository.UpdateAsync(processEvent);
                 return processEvent;
             }
@@ -68,7 +66,7 @@ namespace ImageProcessor.Application.Services
             }
         }
 
-        private async Task<string> RecognizeTextAsync(Stream image)
+        private async Task<OCRResult> RecognizeTextAsync(Stream image)
         {
             var textHeaders = await _computerVisionClient.ReadInStreamAsync(image);
             string operationLocation = textHeaders.OperationLocation;
@@ -81,15 +79,18 @@ namespace ImageProcessor.Application.Services
             }
             while (results.Status is OperationStatusCodes.Running or OperationStatusCodes.NotStarted);
 
-            StringBuilder resultText = new StringBuilder();
+            var lines = new List<string>();
             foreach (ReadResult page in results.AnalyzeResult.ReadResults)
             {
                 foreach (Line line in page.Lines)
                 {
-                    resultText.AppendLine(line.Text);
+                    lines.Add(line.Text);
                 }
             }
-            return resultText.ToString();
+            return new OCRResult()
+            {
+                Lines = lines
+            };
         }
     }
 }

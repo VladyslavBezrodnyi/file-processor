@@ -2,6 +2,7 @@
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using ImageProcessor.Domain.Entities;
+using ImageProcessor.Domain.Enums;
 using ImageProcessor.Infrastructure.ConfigurationOptions;
 using ImageProcessor.Infrastructure.Data.Interfaces;
 using Microsoft.Extensions.Options;
@@ -17,14 +18,10 @@ namespace ImageProcessor.Infrastructure.Data.Clients
             _blobContainerClient = new BlobContainerClient(options.Value.AzureWebJobsStorage, options.Value.BlobContainerName);
         }
 
-        public AsyncPageable<BlobItem> ReadAllAsync()
+        public async Task<Response<BlobDownloadResult>?> ReadFileAsync(Guid fileId, FileType fileType)
         {
-            return _blobContainerClient.GetBlobsAsync();
-        }
-
-        public async Task<Response<BlobDownloadResult>?> ReadFileAsync(Guid fileId)
-        {
-            var container = _blobContainerClient.GetBlobClient(fileId.ToString());
+            var blobName = string.Format($"{fileId}.{fileType.ToString().ToLower()}");
+            var container = _blobContainerClient.GetBlobClient(blobName);
             if (container is null)
             {
                 return null;
@@ -43,16 +40,20 @@ namespace ImageProcessor.Infrastructure.Data.Clients
             {
                 Tags = new Dictionary<string, string>
                 {
+                    ["FileId"] = metadata.FileId.ToString(),
                     ["FileName"] = metadata.FileName
                 },
                 Metadata = new Dictionary<string, string>
                 {
+                    ["FileId"] = metadata.FileId.ToString(),
                     ["FileName"] = metadata.FileName
                 },
                 Conditions = null
             };
+
+            var blobName = string.Format($"{metadata.FileId}.{metadata.FileType.ToString().ToLower()}");
             return await _blobContainerClient
-                .GetBlobClient(metadata.FileId.ToString())
+                .GetBlobClient(blobName)
                 .UploadAsync(
                     content: file,
                     options: options);
