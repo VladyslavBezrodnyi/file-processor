@@ -1,7 +1,10 @@
-﻿using ImageProcessor.Infrastructure.Data.Context;
+﻿using Azure.Identity;
+using Azure.Messaging.ServiceBus;
+using ImageProcessor.Infrastructure.ConfigurationOptions;
+using ImageProcessor.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
 
 namespace ImageProcessor.Infrastructure.Extensions
@@ -9,15 +12,31 @@ namespace ImageProcessor.Infrastructure.Extensions
     public static class InfrastructureServicesExtension
     {
         public static IServiceCollection AddContext(this IServiceCollection services, 
-            IConfiguration configuration, 
+            string connectionString, 
             string migrationsAssembly = "")
         {
-            var connectionString = configuration.GetConnectionString("PostgresqlConnectionString");
             services.AddDbContext<PostgresqlDbContext>(
                 optionsBuilder =>
                     optionsBuilder.UseNpgsql(connectionString, opt => AddOptionbBuilderHandler(opt, migrationsAssembly))
                     .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking),
                 ServiceLifetime.Transient);
+
+            return services;
+        }
+
+        public static IServiceCollection AddServiceBusClient(this IServiceCollection services)
+        {
+            services.AddSingleton<ServiceBusClient>(p =>
+            {
+                var options = p.GetService<IOptions<QueueOptions>>();
+                var clientOptions = new ServiceBusClientOptions
+                {
+                    TransportType = ServiceBusTransportType.AmqpWebSockets
+                };
+                return new ServiceBusClient(
+                    connectionString: options.Value.ServiceBusConnection,
+                    options: clientOptions);
+            });
 
             return services;
         }

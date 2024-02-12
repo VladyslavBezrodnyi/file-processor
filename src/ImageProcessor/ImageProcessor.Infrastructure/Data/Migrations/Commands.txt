@@ -2,6 +2,6 @@ dotnet ef migrations add InitialCreate --output-dir ImageProcessor.Infrastructur
 
 dotnet ef database update --context PostgresqlDbContext --startup-project ImageProcessor.AzureFunctions\ImageProcessor.AzureFunctions.csproj --verbose
 
-dotnet ef migrations add <NAME> --project ImageProcessor.Infrastructure\ImageProcessor.Infrastructure.csproj --output-dir ImageProcessor.Infrastructure\Data\Migrations --context PostgresqlDbContext --startup-project ImageProcessor.AzureFunctions\ImageProcessor.AzureFunctions.csproj --verbose
+dotnet ef migrations add <NAME> --project ImageProcessor.Infrastructure\ImageProcessor.Infrastructure.csproj --output-dir Data\Migrations --context PostgresqlDbContext --startup-project ImageProcessor.AzureFunctions\ImageProcessor.AzureFunctions.csproj --verbose
 
-dotnet ef migrations remove --context PostgresqlDbContext --startup-project ImageProcessor.AzureFunctions\ImageProcessor.AzureFunctions.csproj --verbose
+dotnet ef migrations remove --context PostgresqlDbContext --project ImageProcessor.Infrastructure\ImageProcessor.Infrastructure.csproj --startup-project ImageProcessor.AzureFunctions\ImageProcessor.AzureFunctions.csproj --verbose

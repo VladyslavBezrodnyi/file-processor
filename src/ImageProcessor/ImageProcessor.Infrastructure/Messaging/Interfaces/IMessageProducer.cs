@@ -1,7 +1,9 @@
-﻿namespace ImageProcessor.Infrastructure.Messaging.Interfaces
+﻿using ImageProcessor.Infrastructure.Messaging.Producers;
+
+namespace ImageProcessor.Infrastructure.Messaging.Interfaces
 {
     public interface IMessageProducer
     {
-        Task SendMessageAsync<TData>(IQueueMessage<TData> message);
+        AzureMessageBusProducer.MessageBusSender SetQueueName(QueueNames name);
     }
 }

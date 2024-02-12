@@ -1,33 +1,26 @@
-﻿using Azure.Identity;
-using Azure.Messaging.ServiceBus;
-using ImageProcessor.Infrastructure.ConfigurationOptions;
+﻿using Azure.Messaging.ServiceBus;
 using ImageProcessor.Infrastructure.Messaging.Interfaces;
-using Microsoft.Extensions.Options;
 
 namespace ImageProcessor.Infrastructure.Messaging.Producers
 {
-    public class AzureMessageBusProducer : IMessageProducer
+    public class AzureMessageBusProducer(ServiceBusClient client) : IMessageProducer
     {
-        private readonly ServiceBusClient _client;
-        private readonly ServiceBusSender _sender;
+        private readonly ServiceBusClient client = client;
 
-        public AzureMessageBusProducer(IOptions<QueueOptions> options) 
+        public MessageBusSender SetQueueName(QueueNames name)
         {
-            var clientOptions = new ServiceBusClientOptions
-            {
-                TransportType = ServiceBusTransportType.AmqpWebSockets
-            };
-            _client = new ServiceBusClient(
-                    options.Value.ServiceBusNamespace,
-                    new DefaultAzureCredential(),
-                    clientOptions);
-            _sender = _client.CreateSender(options.Value.ServiceBusQueueName);
+            return new MessageBusSender(client.CreateSender(name.Value));
         }
 
-        public async Task SendMessageAsync<TData>(IQueueMessage<TData> message)
+        public class MessageBusSender(ServiceBusSender sender) : IMessageSender
         {
-            var queueMessage = new ServiceBusMessage(message.Serialize());
-            await _sender.SendMessageAsync(queueMessage);
+            private readonly ServiceBusSender _sender = sender;
+
+            public async Task SendMessageAsync<TData>(IQueueMessage<TData> message)
+            {
+                var queueMessage = new ServiceBusMessage(message.Serialize());
+                await _sender.SendMessageAsync(queueMessage);
+            }
         }
     }
 }

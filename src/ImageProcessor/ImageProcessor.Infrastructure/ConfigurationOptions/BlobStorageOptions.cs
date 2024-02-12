@@ -2,7 +2,7 @@
 {
     public class BlobStorageOptions
     {
-        public string AzureWebJobsStorage { get; set; } = String.Empty;
-        public string BlobContainerName { get; set; } = String.Empty;
+        public required string AzureWebJobsStorage { get; set; }
+        public required string BlobContainerName { get; set; }
     }
 }

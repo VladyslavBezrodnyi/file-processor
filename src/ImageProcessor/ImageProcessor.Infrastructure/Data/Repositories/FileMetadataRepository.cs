@@ -1,6 +1,6 @@
 ﻿using ImageProcessor.Domain.Entities;
-using ImageProcessor.Domain.Interfaces.Repositories;
 using ImageProcessor.Infrastructure.Data.Context;
+using ImageProcessor.Infrastructure.Data.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace ImageProcessor.Infrastructure.Data.Repositories

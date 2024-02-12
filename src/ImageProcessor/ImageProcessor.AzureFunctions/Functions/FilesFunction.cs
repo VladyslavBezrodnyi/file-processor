@@ -12,7 +12,6 @@ namespace ImageProcessor.AzureFunctions.Functions
         [Function("files")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequest req)
         {
-            _logger.LogInformation("C# HTTP trigger function processed a request.");
             return new OkObjectResult("Value");
         }
     }

@@ -1,5 +1,5 @@
+using ImageProcessor.Application.Services.Interfaces;
 using ImageProcessor.Domain.Enums;
-using ImageProcessor.Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -17,7 +17,6 @@ namespace ImageProcessor.AzureFunctions.Functions
         [Function("file-processing-trigger")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequest req)
         {
-            _logger.LogInformation("C# HTTP trigger function processed a request.");
             var fileId = Guid.Parse(req.Query["FileId"].ToString());
 
             var processEvent = await _fileService.TriggerProcessingAsync(fileId, ProcessType.OCR);

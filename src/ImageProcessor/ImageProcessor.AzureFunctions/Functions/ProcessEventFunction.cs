@@ -1,5 +1,4 @@
-using ImageProcessor.Domain.Entities;
-using ImageProcessor.Domain.Interfaces.Repositories;
+using ImageProcessor.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -8,20 +7,18 @@ using Microsoft.Extensions.Logging;
 namespace ImageProcessor.AzureFunctions.Functions
 {
     public class ProcessEventFunction(
-        IRepository<ProcessEvent, Guid> processEventRepository,
+        IProcessEventService processEventService,
         ILogger<ProcessEventFunction> logger)
     {
-        private readonly IRepository<ProcessEvent, Guid> _processEventRepository = processEventRepository;
+        private readonly IProcessEventService _processEventRepository = processEventService;
         private readonly ILogger<ProcessEventFunction> _logger = logger;
 
         [Function("process-event")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequest req)
         {
-            _logger.LogInformation("C# HTTP trigger function processed a request.");
-            var eventId = Guid.Parse(req.Headers["EventId"].ToString());
-            var result = await _processEventRepository.GetById(eventId);
-            result.FileMetadata.ProcessEvents = null;
-            return new OkObjectResult(result);
+            var eventId = Guid.Parse(req.Query["EventId"].ToString());
+            var processEventDto = await _processEventRepository.GetProcessEventAsync(eventId);
+            return new OkObjectResult(processEventDto);
         }
     }
 }

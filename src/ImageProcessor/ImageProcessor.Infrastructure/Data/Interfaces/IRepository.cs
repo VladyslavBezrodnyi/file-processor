@@ -1,8 +1,8 @@
-﻿namespace ImageProcessor.Domain.Interfaces.Repositories
+﻿namespace ImageProcessor.Infrastructure.Data.Interfaces
 {
-    public interface IRepository<TEntity, TId> 
+    public interface IRepository<TEntity, TId>
         where TEntity : class
-        where TId: struct
+        where TId : struct
     {
         Task<TEntity> GetById(TId id);
 

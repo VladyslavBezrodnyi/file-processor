@@ -1,7 +1,6 @@
-using ImageProcessor.Domain.Entities;
-using ImageProcessor.Domain.Enums;
+using ImageProcessor.Application.Dtos;
+using ImageProcessor.Application.Services.Interfaces;
 using ImageProcessor.Domain.Extensions;
-using ImageProcessor.Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -19,8 +18,6 @@ namespace ImageProcessor.AzureFunctions.Functions
         [Function("file")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req)
         {
-            _logger.LogInformation("C# HTTP trigger function processed a request.");
-
             switch (req.Method.ToLower())
             {
                 case "get":
@@ -49,20 +46,20 @@ namespace ImageProcessor.AzureFunctions.Functions
                 return new BadRequestObjectResult("Invalid file extension!");
             }
 
-            var metadata = new FileMetadata()
+            var metadataDto = new FileMetadataDto()
             {
                 FileName = file.FileName,
                 ContentType = file.ContentType,
                 FileType = fileType.Value
             };
 
-            var createdMetadata = await _fileService.UploadFileAsync(metadata, stream);
+            var createdMetadataDto = await _fileService.UploadFileAsync(metadataDto, stream);
 
-            if (createdMetadata is null)
+            if (createdMetadataDto is null)
             {
                 return new BadRequestObjectResult("File was not uploaded!");
             }
-            return new OkObjectResult(createdMetadata);
+            return new OkObjectResult(createdMetadataDto);
         }
     }
 }

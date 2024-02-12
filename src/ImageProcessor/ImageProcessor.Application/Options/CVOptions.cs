@@ -2,7 +2,7 @@
 {
     public class CVOptions
     {
-        public string? VisionKey { get; set; }
-        public string? VisionEndpoint { get; set; }
+        public required string VisionKey { get; set; }
+        public required string VisionEndpoint { get; set; }
     }
 }

@@ -1,15 +1,18 @@
 ﻿using ImageProcessor.Domain.Enums;
+using System.Text.Json.Serialization;
 
-namespace ImageProcessor.Domain.Entities
+namespace ImageProcessor.Application.Dtos
 {
-    public class ProcessEvent : BaseEntity
+    public class ProcessEventDto
     {
         public Guid EventId { get; set; }
 
         public Guid FileId { get; set; }
 
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public ProcessType ProcessType { get; set; }
 
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public ProcessStatus ProcessStatus { get; set; }
 
         public object? Input { get; set; }
@@ -18,6 +21,8 @@ namespace ImageProcessor.Domain.Entities
 
         public string? FaildMessage { get; set; }
 
-        public FileMetadata FileMetadata { get; set; }
+        public DateTime UpdatedDate { get; set; }
+
+        public FileMetadataDto FileMetadata { get; set; }
     }
 }

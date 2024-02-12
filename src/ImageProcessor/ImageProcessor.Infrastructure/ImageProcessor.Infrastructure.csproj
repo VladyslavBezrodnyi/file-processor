@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Data\Migrations\Migrations\**" />
+    <EmbeddedResource Remove="Data\Migrations\Migrations\**" />
+    <None Remove="Data\Migrations\Migrations\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\ImageProcessor.Domain\ImageProcessor.Domain.csproj" />
   </ItemGroup>
 

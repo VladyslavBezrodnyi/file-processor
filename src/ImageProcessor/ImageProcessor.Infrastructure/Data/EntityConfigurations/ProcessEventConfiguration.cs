@@ -1,6 +1,7 @@
 ﻿using ImageProcessor.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.Text.Json;
 
 namespace ImageProcessor.Infrastructure.Data.EntityConfigurations
 {
@@ -44,12 +45,18 @@ namespace ImageProcessor.Infrastructure.Data.EntityConfigurations
             builder
                 .Property(x => x.Input)
                 .HasColumnName("input")
-                .HasColumnType("json");
+                .HasColumnType("json")
+                .HasConversion(
+                    v => JsonSerializer.Serialize(v, new JsonSerializerOptions()),
+                    v => JsonSerializer.Deserialize<object?>(v, new JsonSerializerOptions()));
 
             builder
                 .Property(x => x.Output)
                 .HasColumnName("output")
-                .HasColumnType("json");
+                .HasColumnType("json")
+                .HasConversion(
+                    v => JsonSerializer.Serialize(v, new JsonSerializerOptions()),
+                    v => JsonSerializer.Deserialize<object?>(v, new JsonSerializerOptions()));
 
             builder
                 .Property(x => x.FaildMessage)

@@ -1,36 +1,28 @@
-﻿using ImageProcessor.Domain.Entities;
+﻿using ImageProcessor.Application.Dtos;
+using ImageProcessor.Application.Services.Interfaces;
+using ImageProcessor.Domain.Entities;
 using ImageProcessor.Domain.Enums;
-using ImageProcessor.Domain.Interfaces.Repositories;
-using ImageProcessor.Domain.Interfaces.Services;
-using ImageProcessor.Infrastructure.Data.Interfaces;
-using ImageProcessor.Infrastructure.Messaging.Interfaces;
+using ImageProcessor.Infrastructure.Messaging;
 using ImageProcessor.Infrastructure.Messaging.Models;
 
 namespace ImageProcessor.Application.Services
 {
-    public class FileService(
-        IRepository<FileMetadata, Guid> fileMetadataRepository,
-        IRepository<ProcessEvent, Guid> processEventRepository,
-        IBlobStorageClient blobStorageClient,
-        IMessageProducer messageProducer) : IFileService
+    public class FileService(IServiceProvider serviceProvider) 
+        : ServiceBase(serviceProvider), IFileService
     {
-        private readonly IRepository<FileMetadata, Guid> _fileMetadataRepository = fileMetadataRepository;
-        private readonly IRepository<ProcessEvent, Guid> _processEventRepository = processEventRepository;
-        private readonly IBlobStorageClient _blobStorageClient = blobStorageClient;
-        private readonly IMessageProducer _messageProducer = messageProducer;
-
-        public async Task<FileMetadata?> UploadFileAsync(FileMetadata metadataToCreate, Stream file)
+        public async Task<FileMetadataDto?> UploadFileAsync(FileMetadataDto metadataToCreateDto, Stream file)
         {
-            var createdMetadata = await _fileMetadataRepository.CreateAsync(metadataToCreate);
+            var metadataToCreate = Mapper.Map<FileMetadata>(metadataToCreateDto);
+            var createdMetadata = await FileMetadataRepository.CreateAsync(metadataToCreate);
             if (createdMetadata is null)
             {
                 return null;
             }
-            await _blobStorageClient.UploadFileAsync(createdMetadata, file);
-            return createdMetadata;
+            await BlobStorageClient.UploadFileAsync(createdMetadata, file);
+            return Mapper.Map<FileMetadataDto>(createdMetadata);
         }
 
-        public async Task<ProcessEvent?> TriggerProcessingAsync(Guid fileId, ProcessType processType)
+        public async Task<ProcessEventDto?> TriggerProcessingAsync(Guid fileId, ProcessType processType)
         {
             var processEventToCreate = new ProcessEvent()
             {
@@ -39,25 +31,29 @@ namespace ImageProcessor.Application.Services
                 ProcessStatus = ProcessStatus.InQueue
             };
 
-            var createdEvent = await _processEventRepository.CreateAsync(processEventToCreate);
+            var createdEvent = await ProcessEventRepository.CreateAsync(processEventToCreate);
 
             if (createdEvent is null)
             {
                 return null;
             }
 
-            var message = new AzureServiceBusMessage<ProcessEvent>()
+            var createdEventDto = Mapper.Map<ProcessEventDto>(createdEvent);
+
+            var message = new AzureServiceBusMessage<ProcessEventDto>()
             {
                 Id = Guid.NewGuid().ToString(),
                 Topic = "process-event",
                 Subject = "process-event",
                 EventType = "trigger",
-                Payload = createdEvent
+                Payload = createdEventDto
             };
 
-            await _messageProducer.SendMessageAsync(message);
+            await MessageProducer
+                .SetQueueName(QueueNames.FileProcessingQueueName)
+                .SendMessageAsync(message);
 
-            return createdEvent;
+            return createdEventDto;
         }
 
     }
