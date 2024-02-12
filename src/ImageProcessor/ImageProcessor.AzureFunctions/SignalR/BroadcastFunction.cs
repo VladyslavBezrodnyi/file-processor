@@ -11,7 +11,7 @@ namespace ImageProcessor.AzureFunctions.SignalR
         private readonly ILogger<BroadcastFunction> _logger = logger;
 
         [Function("broadcast")]
-        [SignalROutput(HubName = "chat", ConnectionStringSetting = "AzureSignalRConnectionString")]
+        [SignalROutput(HubName = "messaging", ConnectionStringSetting = "AzureSignalRConnectionString")]
         public SignalRMessageAction Broadcast(
             [ServiceBusTrigger("signalr-messaging", Connection = "ServiceBusConnection")] ServiceBusReceivedMessage message)
         {

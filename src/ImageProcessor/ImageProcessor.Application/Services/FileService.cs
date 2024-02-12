@@ -4,12 +4,22 @@ using ImageProcessor.Domain.Entities;
 using ImageProcessor.Domain.Enums;
 using ImageProcessor.Infrastructure.Messaging;
 using ImageProcessor.Infrastructure.Messaging.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace ImageProcessor.Application.Services
 {
     public class FileService(IServiceProvider serviceProvider) 
         : ServiceBase(serviceProvider), IFileService
     {
+        public async Task<IEnumerable<FileMetadataDto>> GetFilesAsync()
+        {
+            var filesMetada = await FileMetadataRepository
+                .GetFiles()
+                .ToListAsync();
+
+            return Mapper.Map<IEnumerable<FileMetadataDto>>(filesMetada);
+        }
+
         public async Task<FileMetadataDto?> UploadFileAsync(FileMetadataDto metadataToCreateDto, Stream file)
         {
             var metadataToCreate = Mapper.Map<FileMetadata>(metadataToCreateDto);
@@ -20,6 +30,23 @@ namespace ImageProcessor.Application.Services
             }
             await BlobStorageClient.UploadFileAsync(createdMetadata, file);
             return Mapper.Map<FileMetadataDto>(createdMetadata);
+        }
+
+        public async Task<(BlobDetailsDto, BinaryData?)> DownloadFileAsync(Guid fileId)
+        {
+            var metadata = await FileMetadataRepository.GetById(fileId);
+            if (metadata is null)
+            {
+                return (null, null);
+            }
+            var result = await BlobStorageClient.ReadFileAsync(metadata.FileId, metadata.FileType);
+            var details = new BlobDetailsDto()
+            {
+                BlobContentType = result.Value.Details.ContentType,
+                InputContentType = metadata.ContentType
+            };
+            var content = result?.Value?.Content;
+            return (details, content);
         }
 
         public async Task<ProcessEventDto?> TriggerProcessingAsync(Guid fileId, ProcessType processType)

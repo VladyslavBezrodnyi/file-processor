@@ -4,7 +4,7 @@
         where TEntity : class
         where TId : struct
     {
-        Task<TEntity> GetById(TId id);
+        Task<TEntity?> GetById(TId id);
 
         Task<TEntity> CreateAsync(TEntity entity);
 

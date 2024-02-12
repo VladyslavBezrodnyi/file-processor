@@ -73,6 +73,8 @@ namespace ImageProcessor.AzureFunctions
             services.AddScoped<IBlobStorageClient, BlobStorageClient>();
             services.AddScoped<IRepository<FileMetadata, Guid>, FileMetadataRepository>();
             services.AddScoped<IRepository<ProcessEvent, Guid>, ProcessEventRepository>();
+            services.AddScoped<IFileMetadataRepository, FileMetadataRepository>();
+            services.AddScoped<IProcessEventRepository, ProcessEventRepository>();
 
             //Messaging
             services.AddSingleton<IMessageProducer, AzureMessageBusProducer>();

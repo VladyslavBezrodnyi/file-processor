@@ -1,5 +1,6 @@
 ﻿using ImageProcessor.Application.Dtos;
 using ImageProcessor.Application.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace ImageProcessor.Application.Services
 {
@@ -10,6 +11,15 @@ namespace ImageProcessor.Application.Services
         {
             var processEvent = await ProcessEventRepository.GetById(eventId);
             return Mapper.Map<ProcessEventDto>(processEvent);
+        }
+
+        public async Task<IEnumerable<ProcessEventDto>> GetByFileIdAsync(Guid fileId)
+        {
+            var processEvents = await ProcessEventRepository
+                .GetByFileId(fileId)
+                .ToListAsync();
+
+            return Mapper.Map<IEnumerable<ProcessEventDto>>(processEvents);
         }
     }
 }

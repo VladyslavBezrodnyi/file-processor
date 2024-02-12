@@ -15,8 +15,8 @@ namespace ImageProcessor.Application.Services
 
         private IMapper? _mapper;
 
-        private IRepository<FileMetadata, Guid>? _fileMetadataRepository;
-        private IRepository<ProcessEvent, Guid>? _processEventRepository;
+        private IFileMetadataRepository? _fileMetadataRepository;
+        private IProcessEventRepository? _processEventRepository;
         private IBlobStorageClient? _blobStorageClient;
 
         private IMessageProducer? _messageProducer;
@@ -30,11 +30,11 @@ namespace ImageProcessor.Application.Services
         protected IMapper Mapper => 
             _mapper ??= (_serviceProvider.GetService<IMapper>() ?? throw new NotImplementedException());
 
-        protected IRepository<FileMetadata, Guid> FileMetadataRepository => 
-            _fileMetadataRepository ??= (_serviceProvider.GetService<IRepository<FileMetadata, Guid>>() ?? throw new NotImplementedException());
+        protected IFileMetadataRepository FileMetadataRepository => 
+            _fileMetadataRepository ??= (_serviceProvider.GetService<IFileMetadataRepository>() ?? throw new NotImplementedException());
 
-        protected IRepository<ProcessEvent, Guid> ProcessEventRepository =>
-            _processEventRepository ??= (_serviceProvider.GetService<IRepository<ProcessEvent, Guid>>() ?? throw new NotImplementedException());
+        protected IProcessEventRepository ProcessEventRepository =>
+            _processEventRepository ??= (_serviceProvider.GetService<IProcessEventRepository>() ?? throw new NotImplementedException());
 
         protected IBlobStorageClient BlobStorageClient =>
             _blobStorageClient ??= (_serviceProvider.GetService<IBlobStorageClient>() ?? throw new NotImplementedException());

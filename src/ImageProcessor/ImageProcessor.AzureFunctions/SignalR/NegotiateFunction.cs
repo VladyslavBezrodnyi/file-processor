@@ -10,7 +10,7 @@ namespace ImageProcessor.AzureFunctions.SignalR
         [Function("negotiate")]
         public IActionResult Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req,
-            [SignalRConnectionInfoInput(HubName = "chat", ConnectionStringSetting = "AzureSignalRConnectionString")] string connectionInfo)
+            [SignalRConnectionInfoInput(HubName = "messaging", ConnectionStringSetting = "AzureSignalRConnectionString")] string connectionInfo)
         {
             return connectionInfo != null
                 ? (ActionResult)new OkObjectResult(connectionInfo)

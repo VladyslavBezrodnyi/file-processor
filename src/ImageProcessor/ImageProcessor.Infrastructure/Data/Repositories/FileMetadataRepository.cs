@@ -5,11 +5,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ImageProcessor.Infrastructure.Data.Repositories
 {
-    public class FileMetadataRepository(PostgresqlDbContext context) : IRepository<FileMetadata, Guid>
+    public class FileMetadataRepository(PostgresqlDbContext context) : IFileMetadataRepository
     {
         private readonly PostgresqlDbContext _context = context;
 
-        public async Task<FileMetadata> GetById(Guid id)
+        public IQueryable<FileMetadata> GetFiles()
+        {
+            return _context.FileMetadata.AsQueryable();
+        }
+
+        public async Task<FileMetadata?> GetById(Guid id)
         {
             return await _context.FileMetadata.FirstOrDefaultAsync(e => e.FileId == id);
         }

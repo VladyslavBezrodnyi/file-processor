@@ -16,7 +16,7 @@ namespace ImageProcessor.AzureFunctions.Functions
         private readonly ILogger<FileFunction> _logger = logger;
 
         [Function("file")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req)
+        public async Task<IActionResult> RunFile([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req)
         {
             switch (req.Method.ToLower())
             {
@@ -29,10 +29,27 @@ namespace ImageProcessor.AzureFunctions.Functions
             }
         }
 
+        [Function("files")]
+        public async Task<IActionResult> GetFiles([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequest req)
+        {
+            var files = await _fileService.GetFilesAsync();
+            if(files is null)
+            {
+                return new NotFoundObjectResult("Not Found");
+            }
+            return new OkObjectResult(files);
+        }
+
         private async Task<IActionResult> GetRequest(HttpRequest req)
         {
-            //TODO
-            return new OkObjectResult("Value");
+            var fileId = Guid.Parse(req.Query["FileId"].ToString());
+            var (deteils, file) = await _fileService.DownloadFileAsync(fileId);
+            if (deteils is null || file is null)
+            {
+                return new BadRequestObjectResult("Payload issues!");
+            }
+            var byteArray = file.ToArray();
+            return new FileContentResult(byteArray, deteils.InputContentType);
         }
 
         private async Task<IActionResult> PostRequest(HttpRequest req)

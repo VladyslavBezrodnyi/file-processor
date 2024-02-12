@@ -1,0 +1,231 @@
+{
+	"info": {
+		"_postman_id": "871edc65-a897-42d1-9234-e19b981d5388",
+		"name": "File Processor",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "19310450"
+	},
+	"item": [
+		{
+			"name": "GET files",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/files",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"files"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create file",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set('fileId', pm.response.json().fileId);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "File",
+							"type": "file",
+							"src": "/S:/img1.png"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{base_url}}/api/file",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"file"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET file",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const data = pm.response\r",
+							"pm.visualizer.set(\r",
+							"    `<body>\r",
+							"        <img src=\"${data}\">\r",
+							"    </body>`\r",
+							");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/file?FileId={{fileId}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"file"
+					],
+					"query": [
+						{
+							"key": "FileId",
+							"value": "{{fileId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET events by file",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/process-events?FileId={{fileId}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"process-events"
+					],
+					"query": [
+						{
+							"key": "FileId",
+							"value": "{{fileId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "File processing trigger",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set('eventId', pm.response.json().eventId);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/file-processing-trigger?FileId={{fileId}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"file-processing-trigger"
+					],
+					"query": [
+						{
+							"key": "FileId",
+							"value": "{{fileId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET process event",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "File",
+							"value": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{base_url}}/api/process-event?EventId={{eventId}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"process-event"
+					],
+					"query": [
+						{
+							"key": "EventId",
+							"value": "{{eventId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "SignalR negotiate",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/negotiate",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"negotiate"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "fileId",
+			"value": ""
+		},
+		{
+			"key": "eventId",
+			"value": ""
+		}
+	]
+}

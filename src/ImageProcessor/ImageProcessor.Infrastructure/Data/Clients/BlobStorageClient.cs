@@ -9,14 +9,9 @@ using Microsoft.Extensions.Options;
 
 namespace ImageProcessor.Infrastructure.Data.Clients
 {
-    public class BlobStorageClient : IBlobStorageClient
+    public class BlobStorageClient(IOptions<BlobStorageOptions> options) : IBlobStorageClient
     {
-        public readonly BlobContainerClient _blobContainerClient;
-
-        public BlobStorageClient(IOptions<BlobStorageOptions> options)
-        {
-            _blobContainerClient = new BlobContainerClient(options.Value.AzureWebJobsStorage, options.Value.BlobContainerName);
-        }
+        public readonly BlobContainerClient _blobContainerClient = new(options.Value.AzureWebJobsStorage, options.Value.BlobContainerName);
 
         public async Task<Response<BlobDownloadResult>?> ReadFileAsync(Guid fileId, FileType fileType)
         {

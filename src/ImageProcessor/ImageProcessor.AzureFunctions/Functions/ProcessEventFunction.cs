@@ -14,11 +14,23 @@ namespace ImageProcessor.AzureFunctions.Functions
         private readonly ILogger<ProcessEventFunction> _logger = logger;
 
         [Function("process-event")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequest req)
+        public async Task<IActionResult> RunProcessEvent([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequest req)
         {
             var eventId = Guid.Parse(req.Query["EventId"].ToString());
             var processEventDto = await _processEventRepository.GetProcessEventAsync(eventId);
             return new OkObjectResult(processEventDto);
+        }
+
+        [Function("process-events")]
+        public async Task<IActionResult> GetProcessEvents([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequest req)
+        {
+            var eventId = Guid.Parse(req.Query["FileId"].ToString());
+            var processEventDtos = await _processEventRepository.GetByFileIdAsync(eventId);
+            if (processEventDtos is null)
+            {
+                return new NotFoundObjectResult("Not Found");
+            }
+            return new OkObjectResult(processEventDtos);
         }
     }
 }
